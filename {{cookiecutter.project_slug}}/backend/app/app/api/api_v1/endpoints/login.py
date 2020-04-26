@@ -5,6 +5,10 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
+import os
+os.sys.path.append(r"C:\Users\Administrator\Desktop\full-stack-fastapi-postgresql\{{cookiecutter.project_slug}}\backend\app")
+
+
 from app import crud, models, schemas
 from app.api import deps
 from app.core import security
@@ -29,17 +33,21 @@ def login_access_token(
     user = crud.user.authenticate(
         db, email=form_data.username, password=form_data.password
     )
+    print(form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     elif not crud.user.is_active(user):
         raise HTTPException(status_code=400, detail="Inactive user")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    print(access_token_expires)
+    print(security.create_access_token(user.id))
     return {
         "access_token": security.create_access_token(
             user.id, expires_delta=access_token_expires
         ),
         "token_type": "bearer",
     }
+
 
 
 @router.post("/login/test-token", response_model=schemas.User)
@@ -63,9 +71,11 @@ def recover_password(email: str, db: Session = Depends(deps.get_db)) -> Any:
             detail="The user with this username does not exist in the system.",
         )
     password_reset_token = generate_password_reset_token(email=email)
+    # print(password_reset_token)
     send_reset_password_email(
         email_to=user.email, email=email, token=password_reset_token
     )
+    print(user.email, email, password_reset_token)
     return {"msg": "Password recovery email sent"}
 
 
@@ -94,3 +104,8 @@ def reset_password(
     db.add(user)
     db.commit()
     return {"msg": "Password updated successfully"}
+
+
+if __name__ == '__main__':
+    c = security.create_access_token('wang')
+    print(c)

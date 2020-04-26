@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
-
+import os
+os.sys.path.append(r"C:\Users\Administrator\Desktop\full-stack-fastapi-postgresql\{{cookiecutter.project_slug}}\backend\app")
 from app import crud, schemas
 from app.core.config import settings
 from app.db import base  # noqa: F401

@@ -2,6 +2,8 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.orm import relationship
+import os
+os.sys.path.append(r"C:\Users\Administrator\Desktop\full-stack-fastapi-postgresql\{{cookiecutter.project_slug}}\backend\app")
 
 from app.db.base_class import Base
 

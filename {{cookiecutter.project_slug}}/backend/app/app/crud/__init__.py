@@ -1,3 +1,6 @@
+import os
+os.sys.path.append(r"C:\Users\Administrator\Desktop\full-stack-fastapi-postgresql\{{cookiecutter.project_slug}}\backend\app")
+
 from .crud_item import item
 from .crud_user import user
 

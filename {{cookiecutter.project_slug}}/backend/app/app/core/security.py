@@ -3,6 +3,8 @@ from typing import Any, Union
 
 from jose import jwt
 from passlib.context import CryptContext
+import os
+os.sys.path.append(r"C:\Users\Administrator\Desktop\full-stack-fastapi-postgresql\{{cookiecutter.project_slug}}\backend\app")
 
 from app.core.config import settings
 
@@ -22,6 +24,7 @@ def create_access_token(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
     to_encode = {"exp": expire, "sub": str(subject)}
+    print(to_encode)
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
@@ -32,3 +35,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
+if __name__ == '__main__':
+    s = create_access_token('ming')
+    print(s)

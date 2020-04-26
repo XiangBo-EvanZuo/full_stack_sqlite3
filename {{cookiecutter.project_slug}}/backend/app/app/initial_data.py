@@ -1,6 +1,10 @@
 import logging
 
+import os
+os.sys.path.append(r"C:\Users\Administrator\Desktop\full-stack-fastapi-postgresql\{{cookiecutter.project_slug}}\backend\app")
+
 from app.db.init_db import init_db
+
 from app.db.session import SessionLocal
 
 logging.basicConfig(level=logging.INFO)

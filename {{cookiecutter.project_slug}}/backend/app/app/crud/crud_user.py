@@ -1,6 +1,8 @@
 from typing import Any, Dict, Optional, Union
 
 from sqlalchemy.orm import Session
+import os
+os.sys.path.append(r"C:\Users\Administrator\Desktop\full-stack-fastapi-postgresql\{{cookiecutter.project_slug}}\backend\app")
 
 from app.core.security import get_password_hash, verify_password
 from app.crud.base import CRUDBase

@@ -2,6 +2,8 @@ from typing import Any
 
 from fastapi import APIRouter, Depends
 from pydantic.networks import EmailStr
+import os
+os.sys.path.append(r"C:\Users\Administrator\Desktop\full-stack-fastapi-postgresql\{{cookiecutter.project_slug}}\backend\app")
 
 from app import models, schemas
 from app.api import deps

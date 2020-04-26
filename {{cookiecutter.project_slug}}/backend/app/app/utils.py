@@ -6,6 +6,8 @@ from typing import Any, Dict, Optional
 import emails
 from emails.template import JinjaTemplate
 from jose import jwt
+import os
+os.sys.path.append(r"C:\Users\Administrator\Desktop\full-stack-fastapi-postgresql\{{cookiecutter.project_slug}}\backend\app")
 
 from app.core.config import settings
 
@@ -16,6 +18,7 @@ def send_email(
     html_template: str = "",
     environment: Dict[str, Any] = {},
 ) -> None:
+    print(settings.EMAILS_ENABLED)
     assert settings.EMAILS_ENABLED, "no provided configuration for email variables"
     message = emails.Message(
         subject=JinjaTemplate(subject_template),
@@ -30,6 +33,7 @@ def send_email(
     if settings.SMTP_PASSWORD:
         smtp_options["password"] = settings.SMTP_PASSWORD
     response = message.send(to=email_to, render=environment, smtp=smtp_options)
+    print(environment)
     logging.info(f"send email result: {response}")
 
 
