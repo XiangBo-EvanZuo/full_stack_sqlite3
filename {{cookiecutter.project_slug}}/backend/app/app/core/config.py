@@ -1,6 +1,6 @@
 import secrets
 from typing import Any, Dict, List, Optional, Union
-
+from datetime import timedelta
 from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, validator
 
 
@@ -58,7 +58,7 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: Optional[str] = '1234567890@'
     EMAILS_FROM_EMAIL: Optional[EmailStr] = '15942043949@163.com'
     EMAILS_FROM_NAME: Optional[str] = None
-
+    EXPIRE_TIME = timedelta(minutes=5)
     @validator("EMAILS_FROM_NAME")
     def get_project_name(cls, v: Optional[str], values: Dict[str, Any]) -> str:
         if not v:
@@ -79,8 +79,8 @@ class Settings(BaseSettings):
 
     EMAIL_TEST_USER: EmailStr = "test@example.com"  # type: ignore
     FIRST_SUPERUSER: EmailStr = '739221432@qq.com'
-    FIRST_SUPERUSER_PASSWORD: str = '123456789'
-    USERS_OPEN_REGISTRATION: bool = False
+    FIRST_SUPERUSER_PASSWORD: str = '1234567890'
+    USERS_OPEN_REGISTRATION: bool = True
 
     class Config:
         case_sensitive = True
