@@ -23,5 +23,8 @@ def init_db(db: Session) -> None:
             email=settings.FIRST_SUPERUSER,
             password=settings.FIRST_SUPERUSER_PASSWORD,
             is_superuser=True,
+            time=521,
+            scores=521
         )
         user = crud.user.create(db, obj_in=user_in)  # noqa: F841
+        print('初始化数据库成功')

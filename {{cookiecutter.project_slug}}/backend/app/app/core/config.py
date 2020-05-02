@@ -33,11 +33,15 @@ class Settings(BaseSettings):
             return None
         return v
 
-    # POSTGRES_SERVER: str
-    # POSTGRES_USER: str
-    # POSTGRES_PASSWORD: str
-    # POSTGRES_DB: str
-    SQLALCHEMY_DATABASE_URI = "sqlite:///test.db"
+    HOSTNAME = "127.0.0.1"
+    PORT = "3306"
+    DATABASE = "haircut"  # 数据库名字，需要自己先建立，编码为utf8，排序general ci
+    USERNAME = "root"  # 数据库用户名 默认为root
+    PASSWORD = "123456"  # 数据库密码 填写自己的
+    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://{username}:{password}@{host}:{port}/{db}?charset=utf8".format(username=USERNAME,
+                                                                                            password=PASSWORD,
+                                                                                            host=HOSTNAME, port=PORT,
+                                                                                            db=DATABASE)
     #
     # @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     # def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
@@ -87,3 +91,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+# print(settings.SQLALCHEMY_DATABASE_URI)

@@ -3,7 +3,9 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import os
-os.sys.path.append(r"C:\Users\Administrator\Desktop\full-stack-fastapi-postgresql\{{cookiecutter.project_slug}}\backend\app")
+
+os.sys.path.append(
+    r"C:\Users\Administrator\Desktop\full-stack-fastapi-postgresql\{{cookiecutter.project_slug}}\backend\app")
 
 from app import crud, models, schemas
 from app.api import deps
@@ -11,18 +13,19 @@ from app.api import deps
 router = APIRouter()
 
 
+# 应用于->普通用户与管理员的兼容接口
 @router.get("/", response_model=List[schemas.Item])
 def read_items(
-    db: Session = Depends(deps.get_db),
-    skip: int = 0,
-    limit: int = 100,
-    current_user: models.User = Depends(deps.get_current_active_user),
+        db: Session = Depends(deps.get_db),
+        skip: int = 0,
+        limit: int = 10000,
+        current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Retrieve items.
     """
     if crud.user.is_superuser(current_user):
-        items = crud.item.get_multi(db, skip=skip, limit=limit)
+        items = crud.item.get_multi_items(db, skip=skip, limit=limit)
     else:
         items = crud.item.get_multi_by_owner(
             db=db, owner_id=current_user.id, skip=skip, limit=limit
@@ -30,12 +33,13 @@ def read_items(
     return items
 
 
+# 根据用于id来创建一个item
 @router.post("/", response_model=schemas.Item)
 def create_item(
-    *,
-    db: Session = Depends(deps.get_db),
-    item_in: schemas.ItemCreate,
-    current_user: models.User = Depends(deps.get_current_active_user),
+        *,
+        db: Session = Depends(deps.get_db),
+        item_in: schemas.ItemCreate,
+        current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Create new item.
@@ -44,13 +48,14 @@ def create_item(
     return item
 
 
+# 根据item的id更新用户信息
 @router.put("/{id}", response_model=schemas.Item)
 def update_item(
-    *,
-    db: Session = Depends(deps.get_db),
-    id: int,
-    item_in: schemas.ItemUpdate,
-    current_user: models.User = Depends(deps.get_current_active_user),
+        *,
+        db: Session = Depends(deps.get_db),
+        id: int,
+        item_in: schemas.ItemUpdate,
+        current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Update an item.
@@ -66,10 +71,10 @@ def update_item(
 
 @router.get("/{id}", response_model=schemas.Item)
 def read_item(
-    *,
-    db: Session = Depends(deps.get_db),
-    id: int,
-    current_user: models.User = Depends(deps.get_current_active_user),
+        *,
+        db: Session = Depends(deps.get_db),
+        id: int,
+        current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Get item by ID.
@@ -84,10 +89,10 @@ def read_item(
 
 @router.delete("/{id}", response_model=schemas.Item)
 def delete_item(
-    *,
-    db: Session = Depends(deps.get_db),
-    id: int,
-    current_user: models.User = Depends(deps.get_current_active_user),
+        *,
+        db: Session = Depends(deps.get_db),
+        id: int,
+        current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Delete an item.

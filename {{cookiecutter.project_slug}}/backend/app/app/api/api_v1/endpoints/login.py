@@ -83,17 +83,6 @@ class Item(BaseModel):
     answer: str
 
 
-# @router.post('/code/confirm/', response_model=ReturnItems)
-# async def dec(item: Item):
-#     if red.exists(item.uid):
-#         true = red.get(item.uid).decode('ascii')
-#         if true == item.answer:
-#             return {'status': '200', 'info': '验证码正确'}
-#         return {'status': '403', 'info': '验证码错误'}
-#     else:
-#         return {'status': '404', 'info': '验证码不存在'}
-
-
 @router.post("/login/access-token", response_model=schemas.Token)
 def login_access_token(
         db: Session = Depends(deps.get_db), form_data: OAuth2PasswordRequestForm = Depends()
@@ -143,8 +132,6 @@ def login_access_token(
                 "token_type": "bearer",
             }
     raise HTTPException(status_code=400, detail="验证码错误")
-
-
 
 
 @router.post("/login/test-token", response_model=schemas.User)

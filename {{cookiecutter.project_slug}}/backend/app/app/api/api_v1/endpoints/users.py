@@ -101,7 +101,8 @@ def create_user_open(
         email: EmailStr = Body(...),
         full_name: str = Body(None),
         uid: str = Body(...),
-        answer: str = Body(...)
+        answer: str = Body(...),
+
 ) -> Any:
     """
     Create new user without the need to be logged in.
@@ -160,7 +161,11 @@ def read_user_by_id(
         raise HTTPException(
             status_code=400, detail="The user doesn't have enough privileges"
         )
-    return user
+    if user:
+        return user
+    raise HTTPException(
+        status_code=400, detail="The user doesn't have enough privileges"
+    )
 
 
 @router.get("/SearchEmail/{email}", response_model=schemas.User, tags=['search', 'SearchEmail'])
