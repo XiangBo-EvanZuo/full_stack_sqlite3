@@ -5,13 +5,14 @@ from pydantic import BaseModel
 
 # Shared properties
 class ItemBase(BaseModel):
-    title: Optional[str] = None
-    description: Optional[str] = None
+    cost_money: Optional[int] = 0
+    earn_score: Optional[int] = 0
 
 
 # Properties to receive on item creation
 class ItemCreate(ItemBase):
-    title: str
+    # admin: bool = False
+    pass
 
 
 # Properties to receive on item update
@@ -22,7 +23,6 @@ class ItemUpdate(ItemBase):
 # Properties shared by models stored in DB
 class ItemInDBBase(ItemBase):
     id: int
-    title: str
     owner_id: int
 
     class Config:

@@ -82,10 +82,10 @@ class Settings(BaseSettings):
         )
 
     EMAIL_TEST_USER: EmailStr = "test@example.com"  # type: ignore
-    FIRST_SUPERUSER: EmailStr = '739221432@qq.com'
+    FIRST_SUPERUSER: int = 15942043949
     FIRST_SUPERUSER_PASSWORD: str = '1234567890'
     USERS_OPEN_REGISTRATION: bool = True
-
+    FULL_NAME: str = '风一样的男子'
     class Config:
         case_sensitive = True
 

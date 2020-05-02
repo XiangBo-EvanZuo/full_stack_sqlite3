@@ -1,6 +1,6 @@
 from typing import Any, List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 import os
 
@@ -40,11 +40,19 @@ def create_item(
         db: Session = Depends(deps.get_db),
         item_in: schemas.ItemCreate,
         current_user: models.User = Depends(deps.get_current_active_user),
+        item_id: int = Body(None)
 ) -> Any:
     """
     Create new item.
     """
-    item = crud.item.create_with_owner(db=db, obj_in=item_in, owner_id=current_user.id)
+
+    if crud.user.is_superuser(current_user):
+
+        owner_id = item_id
+    else:
+        owner_id = current_user.id
+
+    item = crud.item.create_with_owner(db=db, obj_in=item_in, owner_id=owner_id)
     return item
 
 

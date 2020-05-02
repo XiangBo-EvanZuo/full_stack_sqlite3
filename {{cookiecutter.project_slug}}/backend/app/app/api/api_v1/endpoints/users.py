@@ -2,7 +2,8 @@ from typing import Any, List
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
-from pydantic.networks import EmailStr
+# 改为手机号
+# from pydantic.networks import EmailStr
 from sqlalchemy.orm import Session
 import os
 
@@ -22,7 +23,7 @@ router = APIRouter()
 @router.get("/", response_model=List[schemas.User])
 def read_users(
         db: Session = Depends(deps.get_db),
-        skip: int = 0,
+        skip: int = 1,
         limit: int = 100,
         current_user: models.User = Depends(deps.get_current_active_superuser),
 ) -> Any:
@@ -63,7 +64,7 @@ def update_user_me(
         db: Session = Depends(deps.get_db),
         password: str = Body(None),
         full_name: str = Body(None),
-        email: EmailStr = Body(None),
+        email: str = Body(None),
         current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
@@ -98,7 +99,7 @@ def create_user_open(
         db: Session = Depends(deps.get_db),
         password_1: str = Body(...),
         password_2: str = Body(...),
-        email: EmailStr = Body(...),
+        email: str = Body(...),
         full_name: str = Body(None),
         uid: str = Body(...),
         answer: str = Body(...),
