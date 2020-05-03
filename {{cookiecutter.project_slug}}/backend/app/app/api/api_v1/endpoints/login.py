@@ -8,10 +8,11 @@ import redis
 import pymysql
 from pydantic import BaseModel
 
+# 放在这个db里面
 pool = redis.ConnectionPool(host='127.0.0.1')
 red = redis.Redis(connection_pool=pool)
 
-
+# 放在这个db里面
 def read(num):
     '''读取数据库'''
     conn = pymysql.connect(host='localhost',
@@ -131,27 +132,40 @@ def test_token(current_user: models.User = Depends(deps.get_current_user)) -> An
     return current_user
 
 
-@router.post("/password-recovery/{email}", response_model=schemas.Msg)
-def recover_password(email: str, db: Session = Depends(deps.get_db)) -> Any:
+@router.post("/password-recovery/", response_model=schemas.Msg)
+def recover_password(
+        email: str = Body(...),
+        identify_code: str = Body(...),
+        answer: str = Body(...),
+        db: Session = Depends(deps.get_db)
+) -> Any:
     """
     Password Recovery
     """
-    user = crud.user.get_by_email(db, email=email)
+    # 验证码阶段
+    if red.exists(identify_code):
+        true = red.get(identify_code).decode('ascii')
+        if true != answer:
+            raise HTTPException(status_code=400, detail="验证码错误")
+    else:
+        raise HTTPException(status_code=400, detail="验证码不存在")
 
+    # 验证用户是否存在
+    user = crud.user.get_by_email(db, email=email)
     if not user:
         raise HTTPException(
             status_code=404,
             detail="The user with this username does not exist in the system.",
         )
+
+    # 用户存在，验证短信验证码
     password_reset_token = generate_password_reset_token(email=email)
     message_code = generate_verification_code()
     codes = {message_code: password_reset_token}
+
     if not red.exists(email):
         try:
-            # print('写入')
-
             red.setex(email, settings.EMAIL_RESET_TOKEN_EXPIRE_SECONDS, json.dumps(codes))
-            print(message_code)
             try:
                 send_message(message_code)
             except Exception as e:
@@ -170,13 +184,14 @@ def recover_password(email: str, db: Session = Depends(deps.get_db)) -> Any:
 
     return {"msg": "Password recovery email sent"}
 
-
+# 放在这个utils里面
 def send_message(message_code):
     '''
     :param message_code:
     :return: dict 发送结果
     '''
     # 调用api
+    print(message_code)
     pass
 
 
@@ -229,6 +244,7 @@ def reset_password(
     return {"msg": "Password updated successfully"}
 
 
+# 放在这个utils里面
 def generate_verification_code(len=6):
     ''' 随机生成6位的验证码 '''
     # 注意： 这里我们生成的是0-9A-Za-z的列表，当然你也可以指定这个list，这里很灵活

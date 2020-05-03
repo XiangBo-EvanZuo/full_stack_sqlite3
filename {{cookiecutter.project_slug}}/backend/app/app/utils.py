@@ -95,7 +95,7 @@ def send_new_account_email(email_to: str, username: str, password: str) -> None:
 
 def generate_password_reset_token(email: str) -> str:
     delta = timedelta(minutes=settings.EMAIL_RESET_TOKEN_EXPIRE_MINUTES)
-    print(delta)
+    # print(delta)
     now = datetime.now()
     expires = now + delta
     exp = expires.timestamp()
