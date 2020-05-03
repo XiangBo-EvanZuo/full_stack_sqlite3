@@ -7,16 +7,18 @@ import emails
 from emails.template import JinjaTemplate
 from jose import jwt
 import os
-os.sys.path.append(r"C:\Users\Administrator\Desktop\full-stack-fastapi-postgresql\{{cookiecutter.project_slug}}\backend\app")
+
+os.sys.path.append(
+    r"C:\Users\Administrator\Desktop\full-stack-fastapi-postgresql\{{cookiecutter.project_slug}}\backend\app")
 
 from app.core.config import settings
 
 
 def send_email(
-    email_to: str,
-    subject_template: str = "",
-    html_template: str = "",
-    environment: Dict[str, Any] = {},
+        email_to: str,
+        subject_template: str = "",
+        html_template: str = "",
+        environment: Dict[str, Any] = {},
 ) -> None:
     print(settings.EMAILS_ENABLED)
     assert settings.EMAILS_ENABLED, "no provided configuration for email variables"
@@ -92,12 +94,13 @@ def send_new_account_email(email_to: str, username: str, password: str) -> None:
 
 
 def generate_password_reset_token(email: str) -> str:
-    delta = timedelta(hours=settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS)
-    now = datetime.utcnow()
+    delta = timedelta(minutes=settings.EMAIL_RESET_TOKEN_EXPIRE_MINUTES)
+    print(delta)
+    now = datetime.now()
     expires = now + delta
     exp = expires.timestamp()
     encoded_jwt = jwt.encode(
-        {"exp": exp, "nbf": now, "sub": email}, settings.SECRET_KEY, algorithm="HS256",
+        {"exp": exp, "sub": email}, settings.SECRET_KEY, algorithm="HS256",
     )
     return encoded_jwt
 
@@ -105,6 +108,13 @@ def generate_password_reset_token(email: str) -> str:
 def verify_password_reset_token(token: str) -> Optional[str]:
     try:
         decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        return decoded_token["email"]
+        # bug 键值为sub
+        return decoded_token["sub"]
     except jwt.JWTError:
         return None
+
+
+if __name__ == '__main__':
+    token = generate_password_reset_token('15942043949')
+    res = verify_password_reset_token(token)
+    print(token, res)

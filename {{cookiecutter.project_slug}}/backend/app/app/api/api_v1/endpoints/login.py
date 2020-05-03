@@ -1,6 +1,7 @@
 from datetime import timedelta
 from typing import Any
 import random
+import json
 
 from fastapi.responses import StreamingResponse
 import redis
@@ -90,19 +91,7 @@ def login_access_token(
     """
     OAuth2 compatible token login, get an access token for future requests
     """
-    # access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    # user = crud.user.authenticate(
-    #     db, email=form_data.username, password=form_data.password
-    # )
-    #
-    # return {
-    #     "access_token": security.create_access_token(
-    #         user.id, expires_delta=access_token_expires
-    #     ),
-    #     "token_type": "bearer",
-    # }
-
-    # 以上为测试
+    # form_data.username
 
     try:
         uid = form_data.scopes[0]
@@ -155,34 +144,84 @@ def recover_password(email: str, db: Session = Depends(deps.get_db)) -> Any:
             detail="The user with this username does not exist in the system.",
         )
     password_reset_token = generate_password_reset_token(email=email)
-    # print(password_reset_token)
-    send_reset_password_email(
-        email_to=user.email, email=email, token=password_reset_token
-    )
-    print(user.email, email, password_reset_token)
+    message_code = generate_verification_code()
+    codes = {message_code: password_reset_token}
+    if not red.exists(email):
+        try:
+            # print('写入')
+
+            red.setex(email, settings.EMAIL_RESET_TOKEN_EXPIRE_SECONDS, json.dumps(codes))
+            print(message_code)
+            try:
+                send_message(message_code)
+            except Exception as e:
+                print(e)
+        except Exception as e:
+            print(e)
+    else:
+        raise HTTPException(
+            status_code=404,
+            detail="请等60秒",
+        )
+    # 放弃发邮件，选择短信
+    # send_reset_password_email(
+    #     email_to=user.email, email=email, token=password_reset_token
+    # )
+
     return {"msg": "Password recovery email sent"}
+
+
+def send_message(message_code):
+    '''
+    :param message_code:
+    :return: dict 发送结果
+    '''
+    # 调用api
+    pass
 
 
 @router.post("/reset-password/", response_model=schemas.Msg)
 def reset_password(
-        token: str = Body(...),
+        # message_email 前端绑定值
+        message_code: str = Body(...),
+        message_email: str = Body(...),
         new_password: str = Body(...),
         db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Reset password
     """
-    email = verify_password_reset_token(token)
-    if not email:
-        raise HTTPException(status_code=400, detail="Invalid token")
-    user = crud.user.get_by_email(db, email=email)
+    user = crud.user.get_by_email(db, email=message_email)
     if not user:
         raise HTTPException(
             status_code=404,
-            detail="The user with this username does not exist in the system.",
+            detail="用户不存在与系统中",
         )
-    elif not crud.user.is_active(user):
+    try:
+        key = red.get(message_email).decode('ascii')
+    except Exception:
+        raise HTTPException(
+            status_code=404,
+            detail="请先点击发送验证码",
+        )
+
+    token = json.loads(key).get(message_code)
+    if not token:
+        raise HTTPException(
+            status_code=404,
+            detail="短信验证码错误",
+        )
+    email = verify_password_reset_token(token)
+    if not email:
+        raise HTTPException(status_code=400, detail="Invalid token")
+
+    if not crud.user.is_active(user):
         raise HTTPException(status_code=400, detail="Inactive user")
+
+    # 是否允许修改管理员找回自己的密码 默认允许
+    # if crud.user.is_superuser(user):
+    #     raise HTTPException(status_code=400, detail="管理员更改？？？")
+
     hashed_password = get_password_hash(new_password)
     user.hashed_password = hashed_password
     db.add(user)
@@ -190,6 +229,23 @@ def reset_password(
     return {"msg": "Password updated successfully"}
 
 
+def generate_verification_code(len=6):
+    ''' 随机生成6位的验证码 '''
+    # 注意： 这里我们生成的是0-9A-Za-z的列表，当然你也可以指定这个list，这里很灵活
+    # 比如： code_list = ['P','y','t','h','o','n','T','a','b'] # PythonTab的字母
+    code_list = []
+    for i in range(10):  # 0-9数字
+        code_list.append(str(i))
+    for i in range(65, 91):  # 对应从“A”到“Z”的ASCII码
+        code_list.append(chr(i))
+    for i in range(97, 123):  # 对应从“a”到“z”的ASCII码
+        code_list.append(chr(i))
+    myslice = random.sample(code_list, len)  # 从list中随机获取6个元素，作为一个片断返回
+    verification_code = ''.join(myslice).upper()  # list to string
+    return verification_code
+
+
 if __name__ == '__main__':
-    c = security.create_access_token('wang')
-    print(c)
+    # c = security.create_access_token('wang')
+    # print(c)
+    pass

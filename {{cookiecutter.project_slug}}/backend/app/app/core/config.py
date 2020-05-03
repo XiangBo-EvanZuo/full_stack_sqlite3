@@ -86,6 +86,8 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER_PASSWORD: str = '1234567890'
     USERS_OPEN_REGISTRATION: bool = True
     FULL_NAME: str = '风一样的男子'
+    EMAIL_RESET_TOKEN_EXPIRE_MINUTES: int = 2
+    EMAIL_RESET_TOKEN_EXPIRE_SECONDS: int = 2*60
     class Config:
         case_sensitive = True
 
