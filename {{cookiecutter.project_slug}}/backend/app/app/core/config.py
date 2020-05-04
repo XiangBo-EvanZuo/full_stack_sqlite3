@@ -81,13 +81,25 @@ class Settings(BaseSettings):
             and values.get("EMAILS_FROM_EMAIL")
         )
 
+    USERS_OPEN_RESET_PASSWORD: bool = False
+    USERS_OPEN_REGISTRATION: bool = True
+
     EMAIL_TEST_USER: EmailStr = "test@example.com"  # type: ignore
+
+    # 初始化数据库的设置
     FIRST_SUPERUSER: int = 15942043949
     FIRST_SUPERUSER_PASSWORD: str = '1234567890'
-    USERS_OPEN_REGISTRATION: bool = True
     FULL_NAME: str = '风一样的男子'
+
+    # 过期时间设定
     EMAIL_RESET_TOKEN_EXPIRE_MINUTES: int = 2
     EMAIL_RESET_TOKEN_EXPIRE_SECONDS: int = 2*60
+
+    # 短信验证码API设置
+    MESSAGE_SEND_URL: str = 'https://106.ihuyi.com/webservice/sms.php?method=Submit'
+    MESSAGE_SEND_ACCOUNT: str = "C73814936"
+    MESSAGE_SEND_PASSWORD: str = "c30aab906eca923b63bb9b866f009db5"
+
     class Config:
         case_sensitive = True
 

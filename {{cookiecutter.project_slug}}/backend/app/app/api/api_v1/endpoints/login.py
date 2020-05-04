@@ -2,6 +2,7 @@ from datetime import timedelta
 from typing import Any
 import random
 import json
+import requests
 
 from fastapi.responses import StreamingResponse
 import redis
@@ -11,6 +12,7 @@ from pydantic import BaseModel
 # 放在这个db里面
 pool = redis.ConnectionPool(host='127.0.0.1')
 red = redis.Redis(connection_pool=pool)
+
 
 # 放在这个db里面
 def read(num):
@@ -167,7 +169,12 @@ def recover_password(
         try:
             red.setex(email, settings.EMAIL_RESET_TOKEN_EXPIRE_SECONDS, json.dumps(codes))
             try:
-                send_message(message_code)
+                # 暂未开启API接口
+                if settings.USERS_OPEN_RESET_PASSWORD:
+                    send_result = send_message(message_code, email)
+                    print(send_result)
+                print(message_code)
+                print(email)
             except Exception as e:
                 print(e)
         except Exception as e:
@@ -184,15 +191,31 @@ def recover_password(
 
     return {"msg": "Password recovery email sent"}
 
+
 # 放在这个utils里面
-def send_message(message_code):
-    '''
-    :param message_code:
+def send_message(message_code, phone):
+    """
+    :param phone: 手机号
+    :param message_code: 验证码
     :return: dict 发送结果
-    '''
+    """
+
     # 调用api
-    print(message_code)
-    pass
+    data = {
+        "content": '您的验证码是：{message}。请不要把验证码泄露给其他人。'.format(message=message_code),
+        "account": settings.MESSAGE_SEND_ACCOUNT,
+        "password": settings.MESSAGE_SEND_PASSWORD,
+        "mobile": phone
+    }
+    c = requests.post(url=settings.MESSAGE_SEND_URL, data=data)
+    code = c.text.split('code>')[1][0]
+    msg = c.text.split('msg>')[1].split('<')[0]
+    smsid = c.text.split('smsid>')[1].split('<')[0]
+    return {
+        "code": code,
+        "msg": msg,
+        "smsid": smsid
+    }
 
 
 @router.post("/reset-password/", response_model=schemas.Msg)
@@ -245,17 +268,17 @@ def reset_password(
 
 
 # 放在这个utils里面
-def generate_verification_code(len=6):
+def generate_verification_code(len=4):
     ''' 随机生成6位的验证码 '''
     # 注意： 这里我们生成的是0-9A-Za-z的列表，当然你也可以指定这个list，这里很灵活
     # 比如： code_list = ['P','y','t','h','o','n','T','a','b'] # PythonTab的字母
     code_list = []
     for i in range(10):  # 0-9数字
         code_list.append(str(i))
-    for i in range(65, 91):  # 对应从“A”到“Z”的ASCII码
-        code_list.append(chr(i))
-    for i in range(97, 123):  # 对应从“a”到“z”的ASCII码
-        code_list.append(chr(i))
+    # for i in range(65, 91):  # 对应从“A”到“Z”的ASCII码
+    #     code_list.append(chr(i))
+    # for i in range(97, 123):  # 对应从“a”到“z”的ASCII码
+    #     code_list.append(chr(i))
     myslice = random.sample(code_list, len)  # 从list中随机获取6个元素，作为一个片断返回
     verification_code = ''.join(myslice).upper()  # list to string
     return verification_code
