@@ -32,8 +32,8 @@ class User(Base):
 
     is_active = Column(Boolean(), default=True)
     is_superuser = Column(Boolean(), default=False)
-
-
+    bind = Column(String(50), index=True)
+    is_wechat = Column(Boolean(), default=True)
 
     # 循环导包没解决，这个无效
     # items = relationship("Item", back_populates="owner")

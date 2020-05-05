@@ -100,6 +100,7 @@ class Settings(BaseSettings):
     MESSAGE_SEND_ACCOUNT: str = "C73814936"
     MESSAGE_SEND_PASSWORD: str = "c30aab906eca923b63bb9b866f009db5"
 
+    ADMIN_PHONE = str = '15942043949'
     class Config:
         case_sensitive = True
 

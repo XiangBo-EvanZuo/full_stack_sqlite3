@@ -29,7 +29,8 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             full_name=obj_in.full_name,
             is_superuser=obj_in.is_superuser,
             time=obj_in.time,
-            scores=obj_in.scores
+            scores=obj_in.scores,
+            bind=obj_in.bind,
         )
         db.add(db_obj)
         db.commit()

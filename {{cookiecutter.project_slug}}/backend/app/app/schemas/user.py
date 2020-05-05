@@ -11,7 +11,8 @@ class UserBase(BaseModel):
     full_name: Optional[str] = None
     time: int = 0
     scores: int = 0
-
+    bind: str = None
+    is_wechat: bool = True
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):
