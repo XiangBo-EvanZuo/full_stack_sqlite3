@@ -16,7 +16,7 @@ from app.core.config import settings
 from app.utils import send_new_account_email
 
 from app.api.api_v1.endpoints.login import red, read
-
+from app.utils import OpenidUtils
 router = APIRouter()
 
 
@@ -146,6 +146,24 @@ def create_user_open(
     return user
 
 
+@router.post('/CreatUserByWeChat', response_model=schemas.User)
+def creat_user_wechat(
+        *,
+        db: Session = Depends(deps.get_db),
+        openid: str = Body(...),
+        key: str = Body(...),
+        full_name: str = Body(...)
+
+) -> Any:
+
+    user = crud.user.get_by_email(db, email=openid)
+    if user:
+        pass
+
+    user_in = schemas.UserCreate(password=key, email=openid, full_name=full_name)
+    user = crud.user.create(db, obj_in=user_in)
+    return user
+
 @router.get("/SearchId/{user_id}", response_model=schemas.User, tags=['search', 'SearchId'])
 def read_user_by_id(
         user_id: int,
@@ -264,3 +282,5 @@ def update_user(
         )
     user = crud.user.update(db, db_obj=user, obj_in=user_in)
     return user
+
+

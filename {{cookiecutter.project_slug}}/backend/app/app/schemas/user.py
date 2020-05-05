@@ -19,6 +19,11 @@ class UserCreate(UserBase):
     password: str
 
 
+class WechatUserCreate(UserBase):
+    openid: str
+    key: str
+
+
 # Properties to receive via API on update
 class UserUpdate(UserBase):
     password: Optional[str] = None

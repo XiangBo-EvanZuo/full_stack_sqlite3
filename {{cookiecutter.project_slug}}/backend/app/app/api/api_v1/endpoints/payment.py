@@ -21,5 +21,14 @@ def get_openid(code):
         raise HTTPException(status_code=400, detail="获取openid失败")
     return openid
 
+
+def get_openid_wechat(code):
+    try:
+        openidutils = OpenidUtils(code)
+        openid = openidutils.get_openid()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="获取openid失败")
+    return openid
+
 if __name__ == '__main__':
     pass
